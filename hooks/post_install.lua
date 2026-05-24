@@ -4,10 +4,34 @@
 function PLUGIN:PostInstall(ctx)
     local sdkInfo = ctx.sdkInfo[PLUGIN.name]
     local path = sdkInfo.path
-    -- local version = sdkInfo.version
+    local version = sdkInfo.version
+    local core_dist_path = path .. "/core.tar.gz"
 
     os.execute("chmod +x " .. path .. "/bin/*")
     os.execute("chmod +x " .. path .. "/bin/internal/*")
+
+    local http = require("http")
+
+    local resp, err = http.download_file({
+        url = "https://cli.moonbitlang.com/cores/core-" .. version .. ".tar.gz",
+        headers = {
+            ["User-Agent"] = "mise-plugin",
+        },
+    }, core_dist_path)
+    if err ~= nil then
+        error("Download failed: " .. err)
+    end
+
+    local archiver = require("archiver")
+    local err = archiver.decompress(core_dist_path, path .. "/lib")
+    if err ~= nil then
+        error("Extraction failed: " .. err)
+    end
+
+    os.execute("rm " .. core_dist_path)
+
+    os.execute(path .. "/bin/moon -C " .. path .. "/lib/core bundle --warn-list -a --all")
+    os.execute(path .. "/bin/moon -C " .. path .. "/lib/core bundle --warn-list -a --target wasm-gc --quiet")
 
     -- Example 1: Single binary file (most common)
     -- The file is downloaded directly, move it to bin/ and make executable

@@ -1,113 +1,12 @@
-# mise tool plugin template
+# moonbit tool plugin for mise
 
-This is a GitHub template for building a mise tool plugin using the vfox-style Lua hooks architecture.
+> [!WARNING]
+> This is a work in progress. I'm new to moonbit, I can't verify the correctness of the installation process.
+> I'm only testing the installation process on my linux machine.
 
-## Using this template
+This is a mise tool plugin for [MoonBit CLI Tools](https://www.moonbitlang.com/).
 
-### Option 1: Use GitHub's template feature (recommended)
-1. Click "Use this template" button on GitHub
-2. Name your repository (e.g., `mise-mytool`)
-3. Clone your new repository
-4. Follow the setup instructions below
-
-### Option 2: Clone and modify
-```bash
-git clone https://github.com/jdx/mise-tool-plugin-template mise-mytool
-cd mise-mytool
-rm -rf .git
-git init
-```
-
-## Setup Instructions
-
-### 1. Replace placeholders
-
-Search and replace these placeholders throughout the project:
-- `<TOOL>` → your tool name (e.g., `semver`)
-- `<GITHUB_USER>` → your GitHub username or organization
-- `<GITHUB_REPO>` → the upstream tool's GitHub repository name
-
-Files to update:
-- `metadata.lua` - Update name, description, author, updateUrl
-- `hooks/*.lua` - Replace placeholders in all hook files
-- `mise-tasks/test` - Update test version and command
-- `README.md` - Update this file with your tool's information
-
-### 2. Implement the hooks
-
-#### `hooks/available.lua`
-Returns a list of available versions. Examples:
-
-```lua
--- Example 1: GitHub releases API
-local repo_url = "https://api.github.com/repos/owner/repo/releases"
-
--- Example 2: GitHub tags API
-local repo_url = "https://api.github.com/repos/owner/repo/tags"
-
--- Example 3: Custom version listing
--- Parse from a website, API, or other source
-```
-
-#### `hooks/pre_install.lua`
-Returns download information for a specific version:
-
-```lua
--- Example 1: Simple binary download
-local url = "https://github.com/owner/repo/releases/download/v" .. version .. "/tool-linux-amd64"
-
--- Example 2: Archive download
-local url = "https://github.com/owner/repo/releases/download/v" .. version .. "/tool-" .. version .. "-" .. platform .. ".tar.gz"
-
--- Example 3: Raw file from repository
-local url = "https://raw.githubusercontent.com/owner/repo/" .. version .. "/bin/tool"
-```
-
-#### `hooks/post_install.lua`
-Handles post-installation setup:
-
-```lua
--- Example 1: Single binary (chmod and move to bin/)
-os.execute("mkdir -p " .. path .. "/bin")
-os.execute("mv " .. path .. "/tool " .. path .. "/bin/tool")
-os.execute("chmod +x " .. path .. "/bin/tool")
-
--- Example 2: Extract from archive (handled automatically by mise)
--- Usually no action needed if pre_install returns an archive
-
--- Example 3: Multiple binaries
--- Move all executables to bin/ directory
-```
-
-### 3. Configure environment variables
-
-Update `hooks/env_keys.lua` if your tool needs special environment variables:
-
-```lua
--- Basic PATH setup (minimum required)
-return {
-    {
-        key = "PATH",
-        value = mainPath .. "/bin"
-    }
-}
-
--- Advanced example with tool-specific vars
-return {
-    {
-        key = "TOOL_HOME",
-        value = mainPath
-    },
-    {
-        key = "PATH",
-        value = mainPath .. "/bin"
-    },
-    {
-        key = "LD_LIBRARY_PATH",
-        value = mainPath .. "/lib"
-    }
-}
-```
+It is an alternative to install moonbit via [shell script](https://cli.moonbitlang.com/install/unix.sh). 
 
 ## Development Workflow
 
@@ -177,42 +76,6 @@ MISE_DEBUG=1 mise install <TOOL>@latest
 - `hk.pkl` – Modern linting and pre-commit hook configuration
 - `.luacheckrc` – Lua linting configuration
 - `stylua.toml` – Lua formatting configuration
-
-## Common Patterns
-
-### Platform Detection
-```lua
-local function get_platform()
-    -- RUNTIME object is provided by mise/vfox
-    -- RUNTIME.osType: "Windows", "Linux", "Darwin"
-    -- RUNTIME.archType: "amd64", "386", "arm64", etc.
-
-    local os_name = RUNTIME.osType:lower()
-    local arch = RUNTIME.archType
-
-    -- Map to your tool's platform naming convention
-    local platform_map = {
-        ["darwin"] = {
-            ["amd64"] = "darwin-amd64",
-            ["arm64"] = "darwin-arm64",
-        },
-        ["linux"] = {
-            ["amd64"] = "linux-amd64",
-            ["arm64"] = "linux-arm64",
-        },
-        ["windows"] = {
-            ["amd64"] = "windows-amd64",
-            ["386"] = "windows-386",
-        }
-    }
-
-    local os_map = platform_map[os_name]
-    if os_map then
-        return os_map[arch] or "linux-amd64"
-    end
-    return "linux-amd64"  -- fallback
-end
-```
 
 ### Checksum Verification
 ```lua

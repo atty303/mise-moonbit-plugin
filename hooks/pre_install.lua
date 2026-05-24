@@ -18,12 +18,12 @@ local function get_platform()
         },
         ["windows"] = {
             ["amd64"] = "windows-x86_64",
-        }
+        },
     }
 
     local os_map = platform_map[os_name]
     if os_map then
-        return os_map[arch] or "linux-amd64"  -- fallback
+        return os_map[arch] or "linux-amd64" -- fallback
     end
 
     -- Default fallback
@@ -56,17 +56,32 @@ function PLUGIN:PreInstall(ctx)
     local url = "https://cli.moonbitlang.com/binaries/" .. version .. "/moonbit-" .. target .. ".tar.gz"
 
     -- Optional: Fetch checksum for verification
-    -- local sha256 = fetch_checksum(version) -- Implement if checksums are available
+    local http = require("http")
+    -- GET request
+    local resp, err = http.get({
+        url = url .. ".sha256",
+        headers = {
+            ["User-Agent"] = "mise-plugin",
+        },
+    })
+    if err ~= nil then
+        error("Request failed: " .. err)
+    end
+    if resp.status_code ~= 200 then
+        error("HTTP error: " .. resp.status_code)
+    end
+
+    local sha256 = resp.body:match("^(^%S+)")
 
     return {
         version = version,
         url = url,
-        -- sha256 = sha256, -- Optional but recommended for security
+        sha256 = sha256, -- Optional but recommended for security
         note = "Downloading moonbit " .. version,
         -- addition = { -- Optional: download additional components
         --     {
-        --         name = "component",
-        --         url = "https://example.com/component.tar.gz"
+        --         name = "core",
+        --         url = "https://cli.moonbitlang.com/cores/core-" .. version .. ".tar.gz"
         --     }
         -- }
     }
