@@ -6,8 +6,12 @@ function PLUGIN:PostInstall(ctx)
     local path = sdkInfo.path
     -- local version = sdkInfo.version
 
+    os.execute("chmod +x " .. path .. "/bin/*")
+    os.execute("chmod +x " .. path .. "/bin/internal/*")
+
     -- Example 1: Single binary file (most common)
     -- The file is downloaded directly, move it to bin/ and make executable
+    --[[
     os.execute("mkdir -p " .. path .. "/bin")
 
     local srcFile = path .. "/" .. PLUGIN.name
@@ -24,6 +28,7 @@ function PLUGIN:PostInstall(ctx)
     if testResult ~= 0 then
         error(PLUGIN.name .. " installation appears to be broken")
     end
+    --]]
 
     -- Example 2: Archive already extracted by mise
     -- If pre_install returns a .tar.gz or .zip, mise extracts it automatically
