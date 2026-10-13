@@ -1,8 +1,7 @@
-# moonbit tool plugin for mise
-
 > [!WARNING]
-> This is a work in progress. I'm new to moonbit, I can't verify the correctness of the installation process.
-> I'm only testing the installation process on my linux machine.
+> This plugin is deprecated and archived. For new MoonBit installations, use the [shared mise configuration](https://github.com/atty303/repository-template/blob/main/mise/moonbit.toml). See that file for setup instructions.
+
+# moonbit tool plugin for mise
 
 This is a mise tool plugin for [MoonBit CLI Tools](https://www.moonbitlang.com/).
 
